@@ -1,29 +1,21 @@
-from google import genai
 from dotenv import load_dotenv
-import requests
-
+from google import genai
 load_dotenv()
 
+client = genai.Client(api_key="AIzaSyCO_TQQHSqh5tSvRyeouQ2QKgMDA6UAcHg")
 
-client = genai.Client()
+response = client.models.generate_content(
+    model="gemini-3-flash-preview",
+    contents="Explain how AI works in a few words",
+)
 
-print("Chat started. Type 'exit' to quit.\n")
+def main():
+    query = input("> ")
+    res = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        contents=query,
+    )
 
-while True:
-    user_input = input("You: ")
+print(f"{response.text[0].text}")
 
-    if user_input.lower() == "exit":
-        print("Exiting chat...")
-        break
-
-    try:
-        response = client.models.generate_content(
-            model="gemini-3-flash-preview",
-            contents=user_input,
-        )
-
-        print("Agent:", response.text)
-        print()
-
-    except Exception as e:
-        print("Error:", e)
+main()
