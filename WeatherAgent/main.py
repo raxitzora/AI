@@ -1,21 +1,22 @@
-from dotenv import load_dotenv
-from google import genai
-load_dotenv()
+from openai import OpenAI
 
-client = genai.Client(api_key="AIzaSyCO_TQQHSqh5tSvRyeouQ2QKgMDA6UAcHg")
 
-response = client.models.generate_content(
-    model="gemini-3-flash-preview",
-    contents="Explain how AI works in a few words",
-)
+
+client = OpenAI(
+    api_key="AIzaSyAmvF2RBUAVGotbSr7aFtCkpeyYqTcKdAo",
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+) 
 
 def main():
-    query = input("> ")
-    res = client.models.generate_content(
+    user_query = input("> ")
+    response = client.chat.completions.create(
         model="gemini-3-flash-preview",
-        contents=query,
+        messages=[
+            {"role":"user","content":user_query}
+        ]
+        
     )
-
-print(f"{response.text[0].text}")
-
+    
+    print(response.choices[0].message.content)
+    
 main()
