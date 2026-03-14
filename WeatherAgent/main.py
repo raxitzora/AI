@@ -7,6 +7,9 @@ client = OpenAI(
     base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
 ) 
 
+def get_weather(city:str):
+    url = f
+
 def main():
     user_query = input("> ")
     response = client.chat.completions.create(
