@@ -9,7 +9,7 @@ import asyncio
 # -------------------------
 # API KEY
 # -------------------------
-GOOGLE_API_KEY = "AIzaSyAySXvHJjC1YhwpWVZ16d7GJhMnouwdVSE"
+GOOGLE_API_KEY = ""
 
 # -------------------------
 # Gemini Chat
