@@ -3,16 +3,18 @@ from google import genai
 from google.genai import types
 import sounddevice as sd
 import numpy as np
+from scipy.io.wavfile import write
 import speech_recognition as sr
 import asyncio
+import os
 
 # -------------------------
 # API KEY
 # -------------------------
-GOOGLE_API_KEY = "AIzaSyAySXvHJjC1YhwpWVZ16d7GJhMnouwdVSE"
+GOOGLE_API_KEY = "PASTE_YOUR_GEMINI_KEY_HERE"
 
 # -------------------------
-# Gemini Chat
+# Gemini Chat (OpenAI style)
 # -------------------------
 client = OpenAI(
     api_key=GOOGLE_API_KEY,
@@ -24,11 +26,9 @@ client = OpenAI(
 # -------------------------
 tts_client = genai.Client(api_key=GOOGLE_API_KEY)
 
-recognizer = sr.Recognizer()
-
 
 # -------------------------
-# Speak using Gemini TTS
+# Play Gemini audio
 # -------------------------
 async def speak(text):
 
@@ -47,13 +47,8 @@ async def speak(text):
         )
     )
 
-    part = response.candidates[0].content.parts[0]
+    pcm = response.candidates[0].content.parts[0].inline_data.data
 
-    if part.inline_data is None:
-        print("No audio returned")
-        return
-
-    pcm = part.inline_data.data
     audio = np.frombuffer(pcm, dtype=np.int16)
 
     sd.play(audio, samplerate=24000)
@@ -61,11 +56,11 @@ async def speak(text):
 
 
 # -------------------------
-# Listen from microphone
+# Record microphone
 # -------------------------
-def listen():
+def record_audio():
 
-    duration = 4
+    duration = 5
     samplerate = 16000
 
     print("Listening...")
@@ -79,13 +74,27 @@ def listen():
 
     sd.wait()
 
-    audio_data = sr.AudioData(recording.tobytes(), samplerate, 2)
+    write("input.wav", samplerate, recording)
+
+
+# -------------------------
+# Speech → text
+# -------------------------
+def listen():
+
+    record_audio()
+
+    r = sr.Recognizer()
+
+    with sr.AudioFile("input.wav") as source:
+        audio = r.record(source)
 
     try:
-        text = recognizer.recognize_google(audio_data)
+        text = r.recognize_google(audio)
         print("You:", text)
         return text
-    except:
+
+    except Exception:
         print("Didn't catch that.")
         return None
 
@@ -98,16 +107,7 @@ def ask_gemini(prompt):
     response = client.chat.completions.create(
         model="gemini-3-flash-preview",
         messages=[
-            {
-                "role": "system",
-                "content": (
-                    "Tum user ki pyaari aur caring girlfriend ho. "
-                    "Hamesha Hinglish me baat karo."
-                    "Reply chhota rakho (1 ya 2 sentences). "
-                    "tum bohot enthusiast playful cheerful and energatic tone me baat karogi user se."
-                    "Tumhara tone sweet aur playful ho."
-                )
-            },
+            {"role": "system", "content": "You are a helpful voice assistant."},
             {"role": "user", "content": prompt}
         ]
     )
@@ -135,9 +135,9 @@ def main():
 
         reply = ask_gemini(user_text)
 
-        asyncio.run(speak(reply))
+        print("Gemini:", reply)
 
-        print("AI:", reply)
+        asyncio.run(speak(reply))
 
 
 if __name__ == "__main__":
