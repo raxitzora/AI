@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-    apiKey: "AIzaSyAmvF2RBUAVGotbSr7aFtCkpeyYqTcKdAo",
+    apiKey: "",
     baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
 });
 
