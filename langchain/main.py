@@ -29,6 +29,8 @@ chuncks = text_splitter.split_documents(documents=docs)
 embedding_model = HuggingFaceEmbeddings(
     model="sentence-transformers/all-MiniLM-L6-v2"
 )
+
+
 vector_store = QdrantVectorStore.from_documents(
     documents=chuncks,
     embedding=embedding_model,
